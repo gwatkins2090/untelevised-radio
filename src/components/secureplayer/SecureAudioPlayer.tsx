@@ -83,7 +83,7 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
         };
         updateAudioData();
 
-      } catch (err) {
+      } catch {
         // Silently handle Web Audio API errors
         onError?.('Audio visualization unavailable');
       }
@@ -96,7 +96,7 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
           audioContextRef.current.close();
         }
       };
-    }, [onAudioData]);
+    }, [onAudioData, onError]);
 
     // Handle play/pause based on isPoweredOn
     useEffect(() => {

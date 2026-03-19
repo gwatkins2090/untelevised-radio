@@ -1,7 +1,7 @@
 'use client';
 
 import Image from "next/image";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import SecureAudioPlayer, { type SecureAudioPlayerHandle } from "@/components/secureplayer";
 
 export default function Home() {
