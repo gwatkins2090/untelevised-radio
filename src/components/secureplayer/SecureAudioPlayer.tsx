@@ -49,9 +49,9 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
       }
     }));
 
-    // Initialize Web Audio API for visualization
+    // Initialize Web Audio API for visualization - ONCE only
     useEffect(() => {
-      if (!onAudioData || !audioRef.current) return;
+      if (!onAudioData || !audioRef.current || sourceRef.current) return;
 
       try {
         const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
@@ -62,11 +62,6 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
         const source = audioContext.createMediaElementSource(audioRef.current);
         source.connect(analyser);
         analyser.connect(audioContext.destination);
-
-        // Resume audio context if suspended (required for autoplay policies)
-        if (audioContext.state === 'suspended') {
-          audioContext.resume();
-        }
 
         audioContextRef.current = audioContext;
         analyserRef.current = analyser;
@@ -85,24 +80,30 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
 
       } catch {
         // Silently handle Web Audio API errors
-        onError?.('Audio visualization unavailable');
       }
 
       return () => {
         if (animationFrameRef.current) {
           cancelAnimationFrame(animationFrameRef.current);
         }
-        if (audioContextRef.current) {
+        // Only close if context exists and isn't already closed
+        if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
           audioContextRef.current.close();
         }
       };
-    }, [onAudioData, onError]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [onAudioData]);
 
     // Handle play/pause based on isPoweredOn
     useEffect(() => {
       if (!audioRef.current || !isActive) return;
 
       if (isPoweredOn) {
+        // Resume AudioContext if it exists and is suspended
+        if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+          audioContextRef.current.resume();
+        }
+
         const playPromise = audioRef.current.play();
 
         if (playPromise !== undefined) {
