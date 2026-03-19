@@ -32,6 +32,11 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
     useImperativeHandle(ref, () => ({
       play: () => {
         if (audioRef.current) {
+          // Resume AudioContext if it exists and is suspended
+          if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+            audioContextRef.current.resume();
+          }
+
           audioRef.current.play().catch(err => {
             console.error('Play error:', err);
             onError?.('Failed to play audio');
@@ -58,6 +63,13 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
         const source = audioContext.createMediaElementSource(audioRef.current);
         source.connect(analyser);
         analyser.connect(audioContext.destination);
+
+        // Resume audio context if suspended (required for autoplay policies)
+        if (audioContext.state === 'suspended') {
+          audioContext.resume().then(() => {
+            console.log('AudioContext resumed');
+          });
+        }
 
         audioContextRef.current = audioContext;
         analyserRef.current = analyser;
