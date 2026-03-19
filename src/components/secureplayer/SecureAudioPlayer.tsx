@@ -93,7 +93,8 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
       if (!audioRef.current || !isActive) return;
 
       if (isPoweredOn) {
-        console.log('Attempting to play stream from:', `/api/stream/${stationId}`);
+        const currentSrc = audioRef.current.src;
+        console.log('Attempting to play stream from:', currentSrc);
         const playPromise = audioRef.current.play();
 
         if (playPromise !== undefined) {
@@ -136,6 +137,13 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
     const streamUrl = directStream && station
       ? station.url
       : `/api/stream/${stationId}`;
+
+    // Debug logging
+    useEffect(() => {
+      console.log('Stream URL configured:', streamUrl);
+      console.log('Direct stream mode:', directStream);
+      console.log('Station data:', station);
+    }, [streamUrl, directStream, station]);
 
     return (
       <audio

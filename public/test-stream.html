@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stream Test</title>
+</head>
+<body>
+    <h1>Direct Stream Test</h1>
+    <button onclick="playStream()">PLAY</button>
+    <button onclick="stopStream()">STOP</button>
+    <p id="status">Status: Ready</p>
+    <audio id="player" controls></audio>
+
+    <script>
+        const player = document.getElementById('player');
+        const status = document.getElementById('status');
+
+        function playStream() {
+            console.log('Playing stream...');
+            status.textContent = 'Status: Loading...';
+
+            player.src = 'https://radio.watkinsgeorge.com/listen/test/radio.mp3';
+            player.crossOrigin = 'anonymous';
+
+            player.play()
+                .then(() => {
+                    status.textContent = 'Status: PLAYING';
+                    console.log('Success!');
+                })
+                .catch(err => {
+                    status.textContent = 'Status: ERROR - ' + err.message;
+                    console.error('Error:', err);
+                });
+        }
+
+        function stopStream() {
+            player.pause();
+            status.textContent = 'Status: Stopped';
+        }
+
+        player.addEventListener('error', (e) => {
+            console.error('Audio error:', e);
+            status.textContent = 'Status: Audio Error';
+        });
+
+        player.addEventListener('playing', () => {
+            console.log('Audio is playing!');
+        });
+    </script>
+</body>
+</html>
