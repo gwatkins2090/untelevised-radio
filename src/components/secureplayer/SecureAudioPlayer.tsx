@@ -142,8 +142,18 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
           handleError();
         }}
         onLoadStart={() => console.log('Audio loading started')}
-        onCanPlay={() => console.log('Audio can play')}
-        preload="none"
+        onLoadedMetadata={() => console.log('Metadata loaded')}
+        onCanPlay={() => {
+          console.log('Audio can play - attempting playback');
+          // Force play when stream is ready
+          if (audioRef.current && isPoweredOn) {
+            audioRef.current.play().catch(err => console.error('Auto-play after canplay failed:', err));
+          }
+        }}
+        onWaiting={() => console.log('Audio buffering...')}
+        onPlaying={() => console.log('Audio is now playing!')}
+        onStalled={() => console.log('Stream stalled')}
+        preload="auto"
         crossOrigin="anonymous"
         style={{ display: 'none' }}
       />
