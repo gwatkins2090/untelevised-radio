@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStationById } from '@/components/secureplayer/radio-stations';
 
-// Edge runtime for better streaming performance
-export const runtime = 'edge';
+// Use Node.js runtime for long-lived streaming connections
+export const runtime = 'nodejs';
+export const maxDuration = 300; // Maximum on Vercel Pro (5 minutes)
 
 // Rate limiting map (simple in-memory, use Redis in production)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();

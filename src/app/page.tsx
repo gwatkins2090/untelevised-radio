@@ -19,7 +19,7 @@ export default function Home() {
   // Debug: Log when playerRef changes
   useEffect(() => {
     console.log('Player ref updated:', !!playerRef.current);
-  }, [playerRef.current]);
+  }, []);
   return (
     <>
       {/* CRT Screen Effects Layer */}
@@ -113,6 +113,7 @@ export default function Home() {
                 stationId="1"
                 isActive={true}
                 isPoweredOn={isPlaying}
+                directStream={true}
                 onPlay={() => {
                   console.log('Stream started');
                   setError(null);

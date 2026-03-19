@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
+import { getStationById } from './radio-stations';
 
 export interface SecureAudioPlayerHandle {
   play: () => void;
@@ -14,10 +15,11 @@ interface SecureAudioPlayerProps {
   onPlay?: () => void;
   onError?: (error: string) => void;
   onAudioData?: (dataArray: Uint8Array) => void;
+  directStream?: boolean; // Skip proxy and stream directly
 }
 
 const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerProps>(
-  ({ stationId, isActive, isPoweredOn, onPlay, onError, onAudioData }, ref) => {
+  ({ stationId, isActive, isPoweredOn, onPlay, onError, onAudioData, directStream = false }, ref) => {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
     const analyserRef = useRef<AnalyserNode | null>(null);
@@ -129,10 +131,16 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
       }
     };
 
+    // Determine stream URL - use direct stream or proxy
+    const station = getStationById(stationId);
+    const streamUrl = directStream && station
+      ? station.url
+      : `/api/stream/${stationId}`;
+
     return (
       <audio
         ref={audioRef}
-        src={`/api/stream/${stationId}`}
+        src={streamUrl}
         onPlay={() => {
           console.log('Audio element fired onPlay event');
           onPlay?.();
