@@ -37,8 +37,7 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
             audioContextRef.current.resume();
           }
 
-          audioRef.current.play().catch(err => {
-            console.error('Play error:', err);
+          audioRef.current.play().catch(() => {
             onError?.('Failed to play audio');
           });
         }
@@ -66,9 +65,7 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
 
         // Resume audio context if suspended (required for autoplay policies)
         if (audioContext.state === 'suspended') {
-          audioContext.resume().then(() => {
-            console.log('AudioContext resumed');
-          });
+          audioContext.resume();
         }
 
         audioContextRef.current = audioContext;
@@ -87,7 +84,8 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
         updateAudioData();
 
       } catch (err) {
-        console.error('Web Audio API error:', err);
+        // Silently handle Web Audio API errors
+        onError?.('Audio visualization unavailable');
       }
 
       return () => {
@@ -105,19 +103,12 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
       if (!audioRef.current || !isActive) return;
 
       if (isPoweredOn) {
-        const currentSrc = audioRef.current.src;
-        console.log('Attempting to play stream from:', currentSrc);
         const playPromise = audioRef.current.play();
 
         if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              console.log('Playback started successfully');
-            })
-            .catch(err => {
-              console.error('Play error:', err);
-              onError?.(`Playback failed: ${err.message}`);
-            });
+          playPromise.catch(() => {
+            onError?.('Playback failed');
+          });
         }
       } else {
         audioRef.current.pause();
@@ -133,8 +124,8 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
           if (audioRef.current) {
             audioRef.current.load();
             if (isPoweredOn) {
-              audioRef.current.play().catch(err => {
-                console.error('Retry play error:', err);
+              audioRef.current.play().catch(() => {
+                // Silent retry
               });
             }
           }
@@ -150,37 +141,21 @@ const SecureAudioPlayer = forwardRef<SecureAudioPlayerHandle, SecureAudioPlayerP
       ? station.url
       : `/api/stream/${stationId}`;
 
-    // Debug logging
-    useEffect(() => {
-      console.log('Stream URL configured:', streamUrl);
-      console.log('Direct stream mode:', directStream);
-      console.log('Station data:', station);
-    }, [streamUrl, directStream, station]);
 
     return (
       <audio
         ref={audioRef}
         src={streamUrl}
-        onPlay={() => {
-          console.log('Audio element fired onPlay event');
-          onPlay?.();
-        }}
-        onError={(e) => {
-          console.error('Audio element error event:', e);
-          handleError();
-        }}
-        onLoadStart={() => console.log('Audio loading started')}
-        onLoadedMetadata={() => console.log('Metadata loaded')}
+        onPlay={onPlay}
+        onError={handleError}
         onCanPlay={() => {
-          console.log('Audio can play - attempting playback');
           // Force play when stream is ready
           if (audioRef.current && isPoweredOn) {
-            audioRef.current.play().catch(err => console.error('Auto-play after canplay failed:', err));
+            audioRef.current.play().catch(() => {
+              // Silent error
+            });
           }
         }}
-        onWaiting={() => console.log('Audio buffering...')}
-        onPlaying={() => console.log('Audio is now playing!')}
-        onStalled={() => console.log('Stream stalled')}
         preload="auto"
         crossOrigin="anonymous"
         style={{ display: 'none' }}

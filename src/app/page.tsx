@@ -10,16 +10,6 @@ export default function Home() {
   const [audioData, setAudioData] = useState<Uint8Array>(new Uint8Array(128));
   const [error, setError] = useState<string | null>(null);
 
-  // Debug: Log when component mounts
-  useEffect(() => {
-    console.log('Page component mounted');
-    console.log('Player ref on mount:', playerRef.current);
-  }, []);
-
-  // Debug: Log when playerRef changes
-  useEffect(() => {
-    console.log('Player ref updated:', !!playerRef.current);
-  }, []);
   return (
     <>
       {/* CRT Screen Effects Layer */}
@@ -114,12 +104,8 @@ export default function Home() {
                 isActive={true}
                 isPoweredOn={isPlaying}
                 directStream={true}
-                onPlay={() => {
-                  console.log('Stream started');
-                  setError(null);
-                }}
+                onPlay={() => setError(null)}
                 onError={(errorMsg) => {
-                  console.error('Stream error:', errorMsg);
                   setError(errorMsg);
                   setIsPlaying(false);
                 }}
@@ -133,28 +119,16 @@ export default function Home() {
                   {/* Play/Pause Button */}
                   <button
                     onClick={() => {
-                      console.log('PLAY BUTTON CLICKED');
-                      console.log('Current playing state:', isPlaying);
-                      console.log('Player ref exists:', !!playerRef.current);
-
-                      try {
-                        if (isPlaying) {
-                          console.log('Attempting to pause...');
-                          playerRef.current?.pause();
-                          setIsPlaying(false);
-                        } else {
-                          console.log('Attempting to play...');
-                          if (!playerRef.current) {
-                            console.error('Player ref is null!');
-                            setError('Audio player not initialized');
-                            return;
-                          }
-                          playerRef.current.play();
-                          setIsPlaying(true);
+                      if (isPlaying) {
+                        playerRef.current?.pause();
+                        setIsPlaying(false);
+                      } else {
+                        if (!playerRef.current) {
+                          setError('Audio player not initialized');
+                          return;
                         }
-                      } catch (err) {
-                        console.error('Button click error:', err);
-                        setError(`Click error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+                        playerRef.current.play();
+                        setIsPlaying(true);
                       }
                     }}
                     className="group relative"
@@ -185,17 +159,26 @@ export default function Home() {
 
                   {/* Audio Visualizer */}
                   <div className="flex-1 flex items-end justify-center gap-1 h-24 bg-dark-800/50 border border-phosphor/20 px-4">
-                    {Array.from(audioData).slice(0, 64).map((value, i) => (
-                      <div
-                        key={i}
-                        className="w-1 bg-phosphor transition-all duration-75"
-                        style={{
-                          height: `${Math.max(2, (value / 255) * 100)}%`,
-                          opacity: isPlaying ? 0.8 : 0.2,
-                          boxShadow: isPlaying ? '0 0 4px var(--accent2-400)' : 'none'
-                        }}
-                      />
-                    ))}
+                    {Array.from(audioData).slice(0, 64).map((value, i) => {
+                      // Boost lower frequencies and create more dynamic range
+                      const boosted = Math.min(255, value * 1.5);
+                      const height = Math.max(3, (boosted / 255) * 100);
+
+                      return (
+                        <div
+                          key={i}
+                          className="w-1 bg-phosphor"
+                          style={{
+                            height: `${height}%`,
+                            opacity: isPlaying ? (0.6 + (value / 255) * 0.4) : 0.2,
+                            boxShadow: isPlaying && value > 50
+                              ? `0 0 ${Math.min(10, value / 25)}px var(--accent2-400)`
+                              : 'none',
+                            transition: 'height 50ms ease-out, opacity 50ms ease-out'
+                          }}
+                        />
+                      );
+                    })}
                   </div>
 
                   {/* Status Indicator */}
