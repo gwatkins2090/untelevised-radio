@@ -1,0 +1,541 @@
+@import "tailwindcss";
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   UNTELEVISED RADIO — DYSTOPIAN CRT BROADCAST TERMINAL
+   Anarchist Signal Interrupt — Cyberpunk Zine Culture — Lo-Fi Decay
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Base dystopian palette */
+  --dark-900: #1A102B;
+  --dark-800: #251735;
+  --dark-700: #2f1e3f;
+  --surface: #151515;
+  --surface-elevated: #1f1f1f;
+
+  /* Phosphor green - primary CRT glow */
+  --accent2-400: #0ed729;
+  --accent2-500: #0bc622;
+  --accent2-600: #09a51b;
+
+  /* Cyan data channel */
+  --accent1-300: #319bcf;
+  --accent1-400: #2a8ab8;
+
+  /* Alert/danger states */
+  --ruby-400: #ff1744;
+  --ruby-500: #e0115f;
+
+  /* Gold shimmer */
+  --gold-400: #ffd83e;
+
+  /* Blue channel (RGB aberration) */
+  --sapphire-500: #0f52ba;
+
+  /* Static/noise */
+  --silver-100: #f5f5f5;
+  --silver-200: #e0e0e0;
+
+  /* Foreground */
+  --foreground: #ffffff;
+  --foreground-muted: #b0b0b0;
+}
+
+@theme inline {
+  /* Color tokens */
+  --color-dark-900: var(--dark-900);
+  --color-dark-800: var(--dark-800);
+  --color-dark-700: var(--dark-700);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+
+  --color-phosphor: var(--accent2-400);
+  --color-phosphor-bright: var(--accent2-500);
+  --color-phosphor-dim: var(--accent2-600);
+
+  --color-cyan: var(--accent1-300);
+  --color-cyan-bright: var(--accent1-400);
+
+  --color-alert: var(--ruby-400);
+  --color-alert-bright: var(--ruby-500);
+
+  --color-gold: var(--gold-400);
+  --color-sapphire: var(--sapphire-500);
+
+  --color-static: var(--silver-100);
+  --color-static-dim: var(--silver-200);
+
+  --color-foreground: var(--foreground);
+  --color-muted: var(--foreground-muted);
+
+  /* Typography */
+  --font-display: var(--font-display);
+  --font-terminal: var(--font-terminal);
+  --font-mono: var(--font-mono);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   BASE STYLES
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--dark-900);
+  color: var(--foreground);
+  font-family: var(--font-terminal), 'Courier New', monospace;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Typography hierarchy */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display), Impact, sans-serif;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+strong {
+  font-weight: 700;
+  color: var(--accent2-400);
+  text-shadow: 0 0 10px var(--accent2-400);
+}
+
+::selection {
+  background: var(--ruby-500);
+  color: var(--dark-900);
+  text-shadow: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   CRT SCREEN EFFECTS
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.crt-screen {
+  position: relative;
+  background: var(--dark-900);
+  animation: flicker 0.08s infinite;
+}
+
+/* Scanlines overlay */
+.crt-screen::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15) 0px,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* Vignette darkening */
+.crt-screen::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    transparent 50%,
+    rgba(26, 16, 43, 0.4) 80%,
+    rgba(26, 16, 43, 0.9) 100%
+  );
+  pointer-events: none;
+  z-index: 9997;
+}
+
+/* Static noise overlay */
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+  opacity: 1;
+  pointer-events: none;
+  z-index: 9996;
+  animation: grain 0.5s steps(8) infinite;
+}
+
+/* Screen curvature */
+.crt-container {
+  border-radius: 8px;
+  overflow: hidden;
+  transform: perspective(1000px) rotateX(0deg);
+  box-shadow:
+    inset 0 0 100px rgba(14, 215, 41, 0.1),
+    0 0 80px rgba(14, 215, 41, 0.2);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PHOSPHOR GLOW EFFECTS
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.phosphor-glow {
+  color: var(--accent2-400);
+  text-shadow:
+    0 0 5px var(--accent2-400),
+    0 0 10px var(--accent2-400),
+    0 0 20px var(--accent2-400),
+    0 0 40px var(--accent2-500);
+}
+
+.phosphor-glow-cyan {
+  color: var(--accent1-300);
+  text-shadow:
+    0 0 5px var(--accent1-300),
+    0 0 10px var(--accent1-300),
+    0 0 20px var(--accent1-300);
+}
+
+.phosphor-glow-alert {
+  color: var(--ruby-400);
+  text-shadow:
+    0 0 5px var(--ruby-400),
+    0 0 10px var(--ruby-400),
+    0 0 20px var(--ruby-500);
+  animation: pulse-alert 2s ease-in-out infinite;
+}
+
+.phosphor-glow-gold {
+  color: var(--gold-400);
+  text-shadow:
+    0 0 5px var(--gold-400),
+    0 0 10px var(--gold-400);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   CHROMATIC ABERRATION (RGB OFFSET)
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.glitch-text {
+  position: relative;
+  color: var(--foreground);
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+}
+
+.glitch-text::before {
+  color: var(--ruby-500);
+  text-shadow: 2px 0 0 var(--ruby-500);
+  animation: glitch-1 0.3s infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+}
+
+.glitch-text::after {
+  color: var(--sapphire-500);
+  text-shadow: -2px 0 0 var(--sapphire-500);
+  animation: glitch-2 0.3s infinite reverse;
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+}
+
+.chromatic-aberration {
+  text-shadow:
+    -1px 0 0 var(--ruby-500),
+    1px 0 0 var(--sapphire-500),
+    0 0 10px var(--accent2-400);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ANARCHIST Ⓐ BACKGROUND SYMBOL (SVG)
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.anarchist-bg {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 85vh;
+  height: 85vh;
+  opacity: 0.08;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  animation: breathe 6s ease-in-out infinite, rotate-slow 120s linear infinite;
+  filter:
+    drop-shadow(0 0 30px var(--accent2-400))
+    drop-shadow(0 0 60px var(--accent2-500))
+    drop-shadow(0 0 90px var(--accent2-600))
+    brightness(1.2)
+    saturate(1.4);
+  mix-blend-mode: screen;
+}
+
+/* Subtle rotation for dynamic feel */
+@keyframes rotate-slow {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   SIGNAL DROPOUT / GLITCH BARS
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.signal-dropout {
+  position: fixed;
+  left: 0;
+  width: 100vw;
+  height: 4px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--silver-200) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  z-index: 9995;
+  pointer-events: none;
+}
+
+.signal-dropout:nth-child(1) {
+  top: 20%;
+  animation: dropout 1s infinite;
+  animation-delay: 4s;
+}
+
+.signal-dropout:nth-child(2) {
+  top: 60%;
+  animation: dropout 1s infinite;
+  animation-delay: 11s;
+}
+
+.signal-dropout:nth-child(3) {
+  top: 80%;
+  animation: dropout 1s infinite;
+  animation-delay: 17s;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   HUD ELEMENTS
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.hud-corner {
+  position: fixed;
+  color: var(--accent2-400);
+  font-family: var(--font-mono), monospace;
+  font-size: 1.5rem;
+  opacity: 0.6;
+  z-index: 9999;
+  pointer-events: none;
+  text-shadow: 0 0 5px var(--accent2-400);
+}
+
+.hud-corner.top-left {
+  top: 20px;
+  left: 20px;
+}
+
+.hud-corner.top-right {
+  top: 20px;
+  right: 20px;
+}
+
+.hud-corner.bottom-left {
+  bottom: 20px;
+  left: 20px;
+}
+
+.hud-corner.bottom-right {
+  bottom: 20px;
+  right: 20px;
+}
+
+.signal-readout {
+  font-family: var(--font-terminal), monospace;
+  font-size: 0.75rem;
+  color: var(--accent1-300);
+  text-shadow: 0 0 3px var(--accent1-300);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.broadcast-status {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(224, 17, 95, 0.2);
+  border: 1px solid var(--ruby-500);
+  color: var(--ruby-400);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  animation: blink 1.5s infinite;
+  box-shadow:
+    0 0 5px var(--ruby-500),
+    inset 0 0 5px rgba(224, 17, 95, 0.3);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   FROSTED GLASS TERMINAL PANELS
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.terminal-panel {
+  background: rgba(31, 31, 31, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(14, 215, 41, 0.2);
+  box-shadow:
+    0 0 20px rgba(14, 215, 41, 0.1),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+.terminal-panel:hover {
+  background: rgba(31, 31, 31, 0.8);
+  border-color: rgba(14, 215, 41, 0.4);
+  box-shadow:
+    0 0 30px rgba(14, 215, 41, 0.2),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ANIMATIONS
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.98; }
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -5%); }
+  20% { transform: translate(-10%, 5%); }
+  30% { transform: translate(5%, -10%); }
+  40% { transform: translate(-5%, 15%); }
+  50% { transform: translate(-10%, 5%); }
+  60% { transform: translate(15%, 0); }
+  70% { transform: translate(0, 10%); }
+  80% { transform: translate(-15%, 0); }
+  90% { transform: translate(10%, 5%); }
+}
+
+@keyframes breathe {
+  0%, 100% {
+    opacity: 0.06;
+    filter:
+      drop-shadow(0 0 30px var(--accent2-400))
+      drop-shadow(0 0 60px var(--accent2-500))
+      drop-shadow(0 0 90px var(--accent2-600));
+  }
+  50% {
+    opacity: 0.12;
+    filter:
+      drop-shadow(0 0 50px var(--accent2-400))
+      drop-shadow(0 0 100px var(--accent2-500))
+      drop-shadow(0 0 150px var(--accent2-600));
+  }
+}
+
+@keyframes pulse-alert {
+  0%, 100% {
+    opacity: 1;
+    text-shadow:
+      0 0 5px var(--ruby-400),
+      0 0 10px var(--ruby-400),
+      0 0 20px var(--ruby-500);
+  }
+  50% {
+    opacity: 0.7;
+    text-shadow:
+      0 0 10px var(--ruby-400),
+      0 0 20px var(--ruby-400),
+      0 0 40px var(--ruby-500);
+  }
+}
+
+@keyframes blink {
+  0%, 49%, 100% { opacity: 1; }
+  50%, 99% { opacity: 0.3; }
+}
+
+@keyframes dropout {
+  0%, 90%, 100% { opacity: 0; }
+  5% { opacity: 0.6; }
+  10% { opacity: 0; }
+}
+
+@keyframes glitch-1 {
+  0%, 100% { transform: translate(0); }
+  33% { transform: translate(-2px, 1px); }
+  66% { transform: translate(2px, -1px); }
+}
+
+@keyframes glitch-2 {
+  0%, 100% { transform: translate(0); }
+  33% { transform: translate(2px, -1px); }
+  66% { transform: translate(-2px, 1px); }
+}
+
+@keyframes jitter {
+  0%, 100% { transform: translateX(0); }
+  10% { transform: translateX(-3px); }
+  20% { transform: translateX(3px); }
+  30% { transform: translateX(-2px); }
+  40% { transform: translateX(2px); }
+  50% { transform: translateX(0); }
+}
+
+.jitter-anim {
+  animation: jitter 0.3s;
+  animation-delay: 8s;
+  animation-iteration-count: infinite;
+  animation-timing-function: steps(2);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   UTILITY CLASSES
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.terminal-text {
+  font-family: var(--font-terminal), monospace;
+  letter-spacing: 0.05em;
+}
+
+.mono-text {
+  font-family: var(--font-mono), monospace;
+}
+
+.display-text {
+  font-family: var(--font-display), Impact, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.text-phosphor { color: var(--accent2-400); }
+.text-cyan { color: var(--accent1-300); }
+.text-alert { color: var(--ruby-400); }
+.text-gold { color: var(--gold-400); }
+.text-static { color: var(--silver-100); }
+
+.border-phosphor { border-color: var(--accent2-400); }
+.border-cyan { border-color: var(--accent1-300); }
+.border-alert { border-color: var(--ruby-400); }
+
+.bg-dark-900 { background-color: var(--dark-900); }
+.bg-dark-800 { background-color: var(--dark-800); }
+.bg-surface { background-color: var(--surface); }
+.bg-surface-elevated { background-color: var(--surface-elevated); }
