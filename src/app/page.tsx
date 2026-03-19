@@ -1,7 +1,7 @@
 'use client';
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import SecureAudioPlayer, { type SecureAudioPlayerHandle } from "@/components/secureplayer";
 
 export default function Home() {
@@ -9,6 +9,17 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioData, setAudioData] = useState<Uint8Array>(new Uint8Array(128));
   const [error, setError] = useState<string | null>(null);
+
+  // Debug: Log when component mounts
+  useEffect(() => {
+    console.log('Page component mounted');
+    console.log('Player ref on mount:', playerRef.current);
+  }, []);
+
+  // Debug: Log when playerRef changes
+  useEffect(() => {
+    console.log('Player ref updated:', !!playerRef.current);
+  }, [playerRef.current]);
   return (
     <>
       {/* CRT Screen Effects Layer */}
@@ -121,12 +132,28 @@ export default function Home() {
                   {/* Play/Pause Button */}
                   <button
                     onClick={() => {
-                      if (isPlaying) {
-                        playerRef.current?.pause();
-                        setIsPlaying(false);
-                      } else {
-                        playerRef.current?.play();
-                        setIsPlaying(true);
+                      console.log('PLAY BUTTON CLICKED');
+                      console.log('Current playing state:', isPlaying);
+                      console.log('Player ref exists:', !!playerRef.current);
+
+                      try {
+                        if (isPlaying) {
+                          console.log('Attempting to pause...');
+                          playerRef.current?.pause();
+                          setIsPlaying(false);
+                        } else {
+                          console.log('Attempting to play...');
+                          if (!playerRef.current) {
+                            console.error('Player ref is null!');
+                            setError('Audio player not initialized');
+                            return;
+                          }
+                          playerRef.current.play();
+                          setIsPlaying(true);
+                        }
+                      } catch (err) {
+                        console.error('Button click error:', err);
+                        setError(`Click error: ${err instanceof Error ? err.message : 'Unknown error'}`);
                       }
                     }}
                     className="group relative"
